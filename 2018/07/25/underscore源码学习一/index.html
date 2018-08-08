@@ -90,7 +90,7 @@
 <meta property="og:description" content="前言第一篇记录源码阅读的博客，underscore对我说比较合适，相对于vue等框架更容易入手。希望坚持下去把这一系列写（ziliaozhenghe）完。underscore v1.9.1 不同环境下的全局对象underscore把封装的方法挂在全局对象的_下，首先获取全局对象赋值给root1234567// 旧版本root值var root = this;// 新版本root值var root">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/images/==.png">
-<meta property="og:updated_time" content="2018-07-26T08:41:48.000Z">
+<meta property="og:updated_time" content="2018-07-31T12:21:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="underscore源码学习一">
 <meta name="twitter:description" content="前言第一篇记录源码阅读的博客，underscore对我说比较合适，相对于vue等框架更容易入手。希望坚持下去把这一系列写（ziliaozhenghe）完。underscore v1.9.1 不同环境下的全局对象underscore把封装的方法挂在全局对象的_下，首先获取全局对象赋值给root1234567// 旧版本root值var root = this;// 新版本root值var root">
@@ -359,7 +359,8 @@
 </blockquote>
 <p>而此时self仍指向全局作用域，这就是为什么underscore源码中用self的原因（兼容Workers下的全局作用域）<br>关于Service Worker可以参考博客<a href="https://zhuanlan.zhihu.com/p/27264234" target="_blank" rel="noopener">深入了解 Service Worker ，看这篇就够了</a><br><a href="https://github.com/mqyqingfeng/Blog/tree/master/demos/web-worker" target="_blank" rel="noopener">Demo</a>这是大神写的webworker中打印全局对象demo</p>
 <p>知道了用self代替window的原因，那么<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typeof</span> self == <span class="string">'object'</span> &amp;&amp; self.self === self &amp;&amp; self</span><br></pre></td></tr></table></figure></p>
-<p>在返回self前要判断typeof和self.self，这样写的原因是什么呢？个人认为这是为了一定程度保证此self即我们想要的全局对象。<strong>self不是js的保留关键字</strong>，chrome 67.0.3396.99版本实验，self可以被改写！虽然增加了两个条件并不能保证self就是全局作用域，算是加了层保障。另<code>|| this</code>也可以一定程度避免self被改写（但不符合typeof self == ‘object’ &amp;&amp; self.self === self）情况下可以获取到全局作用域。<br>self不是js保留关键字，但为window保留关键字，所以要警惕以后变量名要避开各种保留关键字才不会出现诡异的问题。</p>
+<p>在返回self前要判断typeof和self.self，这样写的原因是什么呢？个人认为这是为了一定程度保证此self即我们想要的全局对象。self、window、global很有意思，self.self.self.self.self === self 为true,还可以继续往下写， window和global同理。这个实现其实很简单：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.self = self</span><br></pre></td></tr></table></figure></p>
+<p>但<strong>self不是js的保留关键字</strong>，chrome 67.0.3396.99版本实验，self可以被改写！虽然增加了两个条件并不能保证self就是全局作用域，算是加了层保障。另<code>|| this</code>也可以一定程度避免self被改写（但不符合typeof self == ‘object’ &amp;&amp; self.self === self）情况下可以获取到全局作用域。<br>self不是js保留关键字，但为window保留关键字，所以要警惕以后变量名要避开各种保留关键字才不会出现诡异的问题。</p>
 <h3 id="this"><a href="#this" class="headerlink" title="this"></a>this</h3><p>上面说的修改self算是作死会出现的问题，增加了this最主要的原因应该是<br><blockquote><p>在 node 的 vm 模块中，也就是沙盒模块，runInContext 方法中，是不存在 window，也不存在 global 变量的。<br>但是我们却可以通过 this 访问到全局对象</p>
 </blockquote></p>
 <h3 id=""><a href="#" class="headerlink" title="{}"></a>{}</h3><p>那么最后为什么还会有<code>|| {}</code>呢？<br><blockquote><p>因为在微信小程序中，window 和 global 都是 undefined，加上又强制使用严格模式，this 为 undefined，挂载就会发生错误</p>
@@ -414,6 +415,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/08/underscore源码学习二/" rel="prev" title="underscore源码学习二">
+                underscore源码学习二 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -490,7 +495,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
